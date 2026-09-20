@@ -1,6 +1,9 @@
 # Qwen Code 本地缓存
 .qwen/
 
+# Obsidian 把本目录当 vault 打开后生成的配置（含本机路径与窗口状态，变动频繁）
+.obsidian/
+
 # 修改前的原始版本，仅本地留存，不发布
 index.backup.html
 
