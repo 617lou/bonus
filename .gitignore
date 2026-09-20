@@ -1,0 +1,8 @@
+# Qwen Code 本地缓存
+.qwen/
+
+# 修改前的原始版本，仅本地留存，不发布
+index.backup.html
+
+# 排查微信兼容性问题时的截图
+86b5c6eb1852256d535e0cd043ae25d8.jpg

@@ -1,0 +1,469 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff7e7" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>小小星球 · 行为奖励</title>
+  <script>
+    /* 独立的兜底错误捕获：即使主脚本解析失败（老内核语法错误），也能把错误显示在页面上 */
+    window.onerror=function(m,s,l){try{var e=document.getElementById('errbar');if(e){e.hidden=false;e.textContent='页面脚本出错：'+m+'（第 '+l+' 行）'}var b=document.getElementById('bootFlag');if(b){b.hidden=false;b.className='boot-flag err';b.textContent='⚠️ 脚本已执行但出错：'+m+'（第 '+l+' 行）'}}catch(x){}return false};
+  </script>
+  <style>
+    [hidden]{display:none!important}:root{--ink:#263258;--muted:#74809d;--paper:#fffaf0;--lavender:#eae7ff;--sky:#dff3ff;--mint:#dcf6e8;--peach:#ffe3cd;--yellow:#ffd45c;--coral:#f47a69;--line:#e9e2d7;--shadow:0 12px 30px rgba(62,79,132,.12)}*{box-sizing:border-box}body{margin:0;background:#f3f6ff;color:var(--ink);font-family:"Microsoft YaHei","PingFang SC",sans-serif}button,input{font:inherit}button{border:0;cursor:pointer}button:focus-visible{outline:3px solid #5864c4;outline-offset:2px}.app{width:100%;max-width:530px;width:min(100%,530px);min-height:100vh;margin:auto;padding:18px 16px 92px;background:var(--paper);overflow:hidden;position:relative}.app::before,.app::after{content:"";position:absolute;width:175px;height:175px;border-radius:50%;opacity:.5;z-index:0}.app::before{background:var(--lavender);top:-70px;right:-62px}.app::after{background:var(--sky);left:-95px;top:335px}.content,.tabbar{position:relative;z-index:1}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:.12em;color:#7470b7}h1{font:800 28px/1.08 Georgia,"Times New Roman","Songti SC",serif;margin:5px 0 0;letter-spacing:.02em}.avatar{width:44px;height:44px;display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 5px 12px rgba(68,75,106,.08);font-size:23px}.screen{display:none;animation:appear .25s ease}.screen.active{display:block}@keyframes appear{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}.hero{background:var(--ink);color:#fff;padding:19px 20px 17px;border-radius:27px;box-shadow:var(--shadow);position:relative;overflow:hidden}.hero::after{content:"★";position:absolute;color:var(--yellow);font-size:84px;right:17px;top:7px;transform:rotate(12deg)}.hero small{color:#cbd3f0;font-size:13px}.stars{margin-top:8px;font:800 42px/1 Georgia,serif}.stars span{color:var(--yellow)}.hero-note{margin:10px 0 0;color:#dce4ff;font-size:13px}.section-title{display:flex;justify-content:space-between;align-items:baseline;margin:25px 2px 11px}h2{font-size:17px;margin:0}.quiet{color:var(--muted);font-size:12px}.actions,.ledger,.wish-list{display:grid;gap:10px}.action{background:#fff;display:grid;grid-template-columns:45px 1fr auto;gap:11px;align-items:center;border:1px solid #f0e8dc;box-shadow:0 6px 17px rgba(58,72,112,.06);padding:10px;border-radius:19px}.action-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:15px;font-size:22px;background:var(--lavender)}.action:nth-child(2) .action-icon,.action:nth-child(6) .action-icon{background:var(--mint)}.action:nth-child(3) .action-icon,.action:nth-child(4) .action-icon{background:var(--sky)}.action:nth-child(5) .action-icon{background:var(--peach)}.action b{font-size:15px;display:block}.action small{color:var(--muted);font-size:12px;margin-top:2px;display:block}.reward{min-width:70px;color:#6554ac;background:#f0edff;border-radius:12px;padding:9px 8px;font-weight:800;font-size:13px}.action.done{opacity:.72}.action.done .reward{color:#9b5147;background:#fff0ed}.quick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}.quick button{border-radius:17px;padding:13px;font-weight:800;color:var(--ink)}.quick .good{background:var(--yellow)}.quick .bad{background:#fff;border:1px dashed #ec9b8e;color:#ba5045}.week{background:#fff;border:1px solid var(--line);border-radius:21px;padding:15px}.week-head{display:flex;justify-content:space-between;align-items:center}.week-head b{font-size:15px}.progress{margin:12px 0 9px;height:10px;background:#efedf6;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#7669d9,#aa9fff);border-radius:99px;transition:width .35s ease}.pool-card{background:linear-gradient(130deg,#fff0ce,#fff9ed);border:1px solid #f4deb1;border-radius:23px;padding:16px;display:flex;gap:13px;align-items:center}.wish-icon{font-size:38px;width:54px;height:54px;display:grid;place-items:center;background:#fff;border-radius:17px}.pool-card b{display:block;margin-bottom:4px}.pool-card small,.wish p{color:var(--muted)}.pill{font-size:12px;background:#fff;padding:6px 8px;border-radius:99px;font-weight:bold;color:#9b6a18}.add-wish{background:var(--ink);color:#fff;border-radius:11px;padding:9px 12px;font-size:13px;font-weight:700}.summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{padding:14px 10px;background:#fff;border:1px solid var(--line);border-radius:16px;text-align:center}.metric b{display:block;font:800 21px Georgia,serif;color:#5a4ca6}.metric small{display:block;font-size:11px;color:var(--muted);margin-top:4px}.entry{background:#fff;border:1px solid var(--line);padding:12px;border-radius:15px;display:flex;align-items:center;gap:10px}.entry-icon{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:var(--lavender)}.entry-info{flex:1}.entry-info b{font-size:14px;display:block}.entry-info small{color:var(--muted);font-size:11px}.amount{font-weight:800;color:#4c946c}.amount.minus{color:var(--coral)}.wish{background:#fff;padding:15px;border:1px solid var(--line);border-radius:22px}.wish-top{display:flex;align-items:center;gap:11px}.wish-top>div:nth-child(2){flex:1}.wish h3{margin:0 0 4px;font-size:16px}.wish p{margin:0;font-size:12px}.wish-actions{margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.wish button.redeem{padding:10px 14px;background:var(--ink);color:#fff;border-radius:13px;font-weight:800;font-size:13px}.wish button.redeem:disabled{background:#e6e5ec;color:#9b9bab;cursor:not-allowed}.wish button.ghost{padding:8px 12px;background:#f5f2ff;color:#5a50a5;border-radius:11px;font-weight:700;font-size:12px}.wish button.danger{padding:8px 12px;background:#fff1ef;color:#c0513f;border-radius:11px;font-weight:700;font-size:12px}.pool-icon{width:46px;height:46px;border-radius:16px;background:#fff7d8;display:grid;place-items:center}.chart{display:flex;align-items:end;height:150px;gap:9px;padding:12px 5px 0;border-bottom:2px solid var(--line)}.bar-group{flex:1;height:100%;display:flex;align-items:end;justify-content:center;position:relative}.bar{width:75%;max-width:28px;min-height:5px;background:#887de1;border-radius:8px 8px 3px 3px}.bar-group span{position:absolute;bottom:-23px;font-size:10px;color:var(--muted)}.chart-wrap{padding-bottom:22px}.setting{padding:14px 0;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}.setting:last-child{border:0}.setting b{display:block;font-size:15px}.setting small{color:var(--muted);font-size:12px}.setting button{background:#efedfb;color:#5a50a5;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:bold}.tabbar{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:530px;width:min(100%,530px);background:rgba(255,250,240,.92);backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:9px 10px max(10px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr)}.tab{color:#9190a5;background:transparent;font-size:10px;display:grid;justify-items:center;gap:3px;padding:3px 0}.tab span{font-size:20px;line-height:20px}.tab.active{color:#5e55ae;font-weight:800}.env-warn{position:relative;z-index:2;margin:0 0 13px;padding:11px 34px 11px 12px;background:#fff4e5;border:1px solid #f3d3a4;border-radius:15px;color:#8a5a12;font-size:12px;line-height:1.55}.env-warn b{display:block;margin-bottom:3px;font-size:12.5px}.env-warn button{position:absolute;right:7px;top:7px;background:transparent;color:#b07a2c;font-size:17px;line-height:1;padding:3px 5px}.errbar{position:fixed;left:0;right:0;top:0;z-index:60;background:#c0392b;color:#fff;font-size:12px;line-height:1.45;padding:9px 12px;word-break:break-all}.boot-flag{position:relative;z-index:3;margin:0 0 13px;padding:12px 13px;background:#ffe9e6;border:1px solid #f0b4ab;border-radius:15px;color:#a8332a;font-size:12.5px;line-height:1.55;font-weight:700}.boot-flag.run{background:#fff4e5;border-color:#f3d3a4;color:#8a5a12}.modal{position:fixed;left:0;top:0;right:0;bottom:0;z-index:40;overflow-y:auto;-webkit-overflow-scrolling:touch}.modal-backdrop{position:absolute;left:0;top:0;right:0;bottom:0;background:rgba(42,48,80,.4)}.modal-card{position:relative;width:88%;max-width:400px;margin:20vh auto 30px;background:var(--paper);border-radius:24px;padding:21px;color:var(--ink);box-shadow:0 25px 80px rgba(31,35,65,.35)}.modal-card h2{margin:0 0 7px;font-size:19px}.modal-card p{color:var(--muted);font-size:13px;margin:0 0 15px}.modal-card input{width:100%;border:1px solid var(--line);padding:11px;border-radius:12px;margin:5px 0 12px;background:#fff;color:var(--ink)}.dialog-actions{display:flex;gap:8px;justify-content:flex-end}.dialog-actions button{padding:10px 13px;border-radius:11px;font-weight:bold;background:#efedf6;color:var(--ink)}.dialog-actions .confirm{background:var(--ink);color:#fff}.toast{position:fixed;left:50%;bottom:88px;transform:translate(-50%,16px);opacity:0;transition:.22s;background:var(--ink);color:#fff;padding:11px 16px;border-radius:99px;font-size:13px;z-index:50;pointer-events:none}.toast.show{opacity:1;transform:translate(-50%,0)}
+  </style>
+</head>
+<body>
+  <main class="app"><div class="boot-flag" id="bootFlag">⏳ 脚本未执行：当前环境（微信文件预览）很可能禁用了 JavaScript</div><script>(function(){var e=document.getElementById('bootFlag');if(e){e.className='boot-flag run';e.textContent='⏳ 脚本已开始执行，正在渲染页面…';}})();</script><div class="env-warn" id="envWarn" hidden><button type="button" id="envWarnClose" aria-label="关闭提示">✕</button><span id="envWarnText"></span></div><div class="content">
+    <section class="screen active" id="today"><header class="topbar"><div><div class="eyebrow" id="dateLabel">今天</div><h1>小小星球</h1></div><div class="avatar">🧒</div></header><div class="hero"><small>现在可用的小星星</small><div class="stars"><span>★</span> <strong id="balance">0</strong></div><p class="hero-note" id="heroNote">今天从一颗小星星开始吧。</p></div><div class="section-title"><h2>今天的好习惯</h2><span class="quiet" id="doneCount">0 / 6 已完成</span></div><div class="actions" id="actions"></div><div class="quick"><button class="good" id="extraBtn" type="button">✨ 额外表扬 +1</button><button class="bad" id="deductBtn" type="button">记录需要改进 −1</button></div><div class="section-title"><h2>本周星星</h2><span class="quiet" id="weekText">0 / 20 ⭐</span></div><div class="week"><div class="week-head"><b>朝着本周目标前进</b><span>🌱</span></div><div class="progress"><i id="weekProgress"></i></div><span class="quiet">每一颗星，都在长成好习惯。</span></div></section>
+    <section class="screen" id="ledger"><header class="topbar"><div><div class="eyebrow">每一颗星都有来处</div><h1>星星账本</h1></div><div class="avatar">📒</div></header><div class="summary-grid" id="ledgerMetrics"></div><div class="section-title"><h2>最近记录</h2><span class="quiet">按时间排列</span></div><div class="ledger" id="ledgerList"></div></section>
+    <section class="screen" id="wishes"><header class="topbar"><div><div class="eyebrow">慢慢攒，认真实现</div><h1>许愿池</h1></div><div class="avatar pool-icon" aria-label="许愿池礼物图标"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c86a12" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8"/><path d="M12 12s-6 0-7-3a2.5 2.5 0 0 1 2-4.5 3 3 0 0 1 3 2 3 3 0 0 1 3-2 2.5 2.5 0 0 1 2 4.5c-1 3-3 3-3 3"/><path d="M2.8 11h18.4"/></svg></div></header><div class="pool-card"><div class="wish-icon">⭐</div><div><b>可用 <span id="poolBalance">0</span> 颗小星星</b><small>达成愿望时，星星会从这里出发。</small></div></div><div class="section-title"><h2>正在等待的愿望</h2><button class="add-wish" id="addWishBtn" type="button">＋ 添加愿望</button></div><div class="wish-list" id="wishList"></div></section>
+    <section class="screen" id="stats"><header class="topbar"><div><div class="eyebrow">看见一点一点的坚持</div><h1>成长统计</h1></div><div class="avatar">📈</div></header><div class="summary-grid" id="statsMetrics"></div><div class="section-title"><h2>近 7 天净得星星</h2><span class="quiet">本周</span></div><div class="week chart-wrap"><div class="chart" id="chart"></div></div><div class="section-title"><h2>本周好习惯完成率</h2><span class="quiet" id="weekDaysLabel">本周已过 1 天</span></div><div class="week" id="habitStats"></div></section>
+    <section class="screen" id="settings"><header class="topbar"><div><div class="eyebrow">规则可以跟着成长调整</div><h1>设置</h1></div><div class="avatar">⚙️</div></header><div class="week"><div class="setting"><div><b>本周目标</b><small>每周想攒多少颗星星</small></div><button id="goalBtn" type="button">20 ⭐</button></div><div class="setting"><div><b>扣星保护</b><small>可用星星最低保持为 0</small></div><span class="pill">已开启</span></div><div class="setting"><div><b>行为项目</b><small>可添加、修改或删除每日奖励项</small></div><button id="habitBtn" type="button">管理</button></div><div class="setting"><div><b>数据保存</b><small id="storageState">检测中…</small></div><span class="pill" id="storagePill">—</span></div></div><div class="section-title"><h2>小提示</h2></div><div class="pool-card"><div class="wish-icon">💛</div><div><b>奖励具体的努力</b><small>例如“配合刷牙”，比“今天真乖”更容易让孩子理解和坚持。</small></div></div></section>
+    <section class="screen" id="habitsMgmt"><header class="topbar"><div><button class="add-wish" style="padding:6px 10px;font-size:12px" id="backFromHabits" type="button">‹ 返回设置</button><h1 style="margin-top:8px">行为项目</h1></div><div class="avatar">🌟</div></header><div class="pool-card"><div class="wish-icon">🎯</div><div><b>按每天需要打卡的项来配置</b><small>完成一次可得 1 颗小星星，每天只能奖励一次。</small></div></div><div class="section-title"><h2>已添加的行为</h2><button class="add-wish" id="addHabitBtn" type="button">＋ 添加</button></div><div class="wish-list" id="habitList"></div></section>
+  </div><nav class="tabbar"><button class="tab active" data-screen="today" type="button"><span>☀️</span>今天</button><button class="tab" data-screen="ledger" type="button"><span>📒</span>账本</button><button class="tab" data-screen="wishes" type="button"><span><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-8"/><path d="M12 12s-6 0-7-3a2.5 2.5 0 0 1 2-4.5 3 3 0 0 1 3 2 3 3 0 0 1 3-2 2.5 2.5 0 0 1 2 4.5c-1 3-3 3-3 3"/><path d="M2.8 11h18.4"/></svg></span>许愿池</button><button class="tab" data-screen="stats" type="button"><span>⌁</span>统计</button><button class="tab" data-screen="settings" type="button"><span>⚙</span>设置</button></nav></main>
+
+  <div class="modal" id="recordDialog" hidden><div class="modal-backdrop" data-close="1"></div><div class="modal-card"><h2 id="dialogTitle">记录需要改进</h2><p id="dialogDesc">扣除一颗小星星，并写下原因。</p><input id="recordNote" placeholder="例如：玩完玩具没有一起收好" maxlength="30" /><input id="wishCost" type="number" min="1" max="999" placeholder="需要多少颗星星？" hidden /><input id="habitCategory" placeholder="分类，例如：自理、卫生、营养、饮食" maxlength="10" hidden /><input id="habitIcon" placeholder="图标，可输入 1 个 emoji 例如：🧸" maxlength="4" hidden /><div class="dialog-actions"><button type="button" id="cancelDialog">取消</button><button type="button" class="confirm" id="confirmDialog">确认记录</button></div></div></div>
+
+  <div class="modal" id="askDialog" hidden><div class="modal-backdrop" data-close="1"></div><div class="modal-card"><h2 id="askTitle">提示</h2><p id="askDesc"></p><input id="askInput" type="number" min="1" max="9999" hidden /><div class="dialog-actions"><button type="button" id="askCancel">取消</button><button type="button" class="confirm" id="askOk">确定</button></div></div></div>
+
+  <div class="toast" id="toast"></div>
+  <div class="errbar" id="errbar" hidden></div>
+
+  <script>
+  (function(){
+  'use strict';
+
+  var WEEK=['日','一','二','三','四','五','六'];
+  function $(s){return document.querySelector(s)}
+  function $$(s){return Array.prototype.slice.call(document.querySelectorAll(s))}
+  function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+  function fmtLong(d){return (d.getMonth()+1)+'月'+d.getDate()+'日 星期'+WEEK[d.getDay()]}
+  function fmtShort(iso){var d=new Date(iso);if(isNaN(d.getTime()))return '';return (d.getMonth()+1)+'月'+d.getDate()+'日'}
+  /* 按本地日期分组。原先用 toISOString().slice(0,10) 取的是 UTC 日期，
+     在东八区会让“今天”的分界线落在早上 8 点，导致早饭、维生素 D 这些早晨打卡被算进前一天。 */
+  function dateKey(d){
+    var x=(d instanceof Date)?d:new Date(d);
+    if(isNaN(x.getTime()))return '';
+    var m=x.getMonth()+1,day=x.getDate();
+    return x.getFullYear()+'-'+(m<10?'0'+m:m)+'-'+(day<10?'0'+day:day);
+  }
+  function clone(o){return JSON.parse(JSON.stringify(o))}
+
+  /* 存储层：微信 file:// 预览、隐私模式下 localStorage 可能为 null 或直接抛错，必须兜底 */
+  var memStore={};
+  var storageOK=(function(){
+    try{
+      var ls=window.localStorage;
+      if(!ls)return false;
+      ls.setItem('__probe__','1');
+      ls.removeItem('__probe__');
+      return true;
+    }catch(e){return false}
+  })();
+  function storeGet(k){
+    if(storageOK){try{var v=window.localStorage.getItem(k);if(v!==null&&v!==undefined)return v}catch(e){}}
+    return Object.prototype.hasOwnProperty.call(memStore,k)?memStore[k]:null;
+  }
+  function storeSet(k,v){
+    memStore[k]=v;
+    if(storageOK){try{window.localStorage.setItem(k,v)}catch(e){}}
+  }
+
+  var key='little-star-planet-v1';
+  var defaultHabits=[
+    {icon:'🧸',name:'自己整理玩具',category:'自理'},
+    {icon:'🪥',name:'配合刷牙',category:'卫生'},
+    {icon:'☀️',name:'配合吃维生素 D/AD',category:'营养'},
+    {icon:'🐟',name:'配合吃 DHA',category:'营养'},
+    {icon:'🥣',name:'好好吃早饭',category:'饮食'},
+    {icon:'🍚',name:'好好吃晚饭',category:'饮食'}
+  ];
+  var initialWishes=[['🦁','周末去动物园',30,'和小动物见个面'],['📚','选择一本新绘本',10,'睡前故事的新朋友'],['🎠','去一次游乐场',50,'一整天的开心玩耍']];
+
+  function freshData(){return {events:[],goal:20,wishes:clone(initialWishes),habits:clone(defaultHabits)}}
+
+  var data=null;
+  try{data=JSON.parse(storeGet(key)||'null')}catch(e){data=null}
+  if(!data||typeof data!=='object'||Array.isArray(data))data=freshData();
+  if(!Array.isArray(data.events))data.events=[];
+  data.events=data.events.filter(function(e){
+    return e&&typeof e==='object'&&typeof e.amount==='number'&&e.date;
+  }).map(function(e){
+    var o={id:e.id||Date.now(),title:String(e.title||''),amount:e.amount,type:e.type||'earn',icon:String(e.icon||'⭐'),note:String(e.note||''),date:String(e.date)};
+    if(typeof e.habit==='number')o.habit=e.habit;
+    return o;
+  });
+  if(!(typeof data.goal==='number'&&data.goal>0))data.goal=20;
+  if(!Array.isArray(data.wishes))data.wishes=clone(initialWishes);
+  data.wishes=data.wishes.filter(function(w){return w&&w.length>=3&&Number(w[2])>0}).map(function(w){
+    return [String(w[0]||'🌟'),String(w[1]||''),Math.round(Number(w[2])),String(w[3]||'')];
+  });
+  if(!Array.isArray(data.habits)||data.habits.length===0)data.habits=clone(defaultHabits);
+  data.habits=data.habits.map(function(h){
+    h=(h&&typeof h==='object')?h:{};
+    return {icon:String(h.icon||'🌟'),name:String(h.name||'未命名'),category:String(h.category||'其他')};
+  });
+
+  function save(){storeSet(key,JSON.stringify(data))}
+  save();
+
+  function startOfWeek(d){var x=new Date(d.getTime());var day=x.getDay()||7;x.setDate(x.getDate()-day+1);x.setHours(0,0,0,0);return x}
+  function values(events){
+    var list=events||data.events,earned=0,deducted=0,spent=0;
+    for(var i=0;i<list.length;i++){
+      var e=list[i];
+      if(e.type==='spend'){spent+=Math.abs(e.amount);continue}
+      if(e.amount>0)earned+=e.amount;
+      else if(e.type==='deduct')deducted+=Math.abs(e.amount);
+    }
+    return {earned:earned,deducted:deducted,spent:spent,balance:earned-deducted-spent};
+  }
+  function netEarned(events){var t=0;for(var i=0;i<events.length;i++){if(events[i].type!=='spend')t+=events[i].amount}return t}
+  function todayEvents(){var t=dateKey(new Date());return data.events.filter(function(e){return dateKey(e.date)===t})}
+
+  function toast(t){var e=$('#toast');if(!e)return;e.textContent=t;e.classList.add('show');setTimeout(function(){e.classList.remove('show')},1800)}
+  function addEvent(title,amount,type,icon,note,habit){
+    var ev={id:Date.now(),title:title,amount:amount,type:type||'earn',icon:icon||'⭐',note:note||'',date:new Date().toISOString()};
+    if(typeof habit==='number')ev.habit=habit;
+    data.events.unshift(ev);
+    save();render();
+    return true;
+  }
+  function removeEvent(id){data.events=data.events.filter(function(e){return e.id!==id});save();render();toast('已取消完成记录，小星星已收回。')}
+
+  /* 自定义弹层：不使用 <dialog>/showModal、prompt、confirm —— 这些在微信 webview 里经常不可用 */
+  function openModal(sel){var m=$(sel);if(m){m.hidden=false}}
+  function closeModal(sel){var m=$(sel);if(m){m.hidden=true}}
+  var askCallback=null;
+  function askConfirm(title,desc,onOk){
+    $('#askTitle').textContent=title;
+    $('#askDesc').textContent=desc;
+    $('#askInput').hidden=true;
+    $('#askOk').textContent='确定';
+    askCallback=function(){onOk()};
+    openModal('#askDialog');
+  }
+  function askNumber(title,desc,value,onOk){
+    $('#askTitle').textContent=title;
+    $('#askDesc').textContent=desc;
+    var inp=$('#askInput');
+    inp.hidden=false;
+    inp.value=value;
+    $('#askOk').textContent='保存';
+    askCallback=function(){
+      var n=Number(inp.value);
+      if(!(n>0)){inp.focus();return false}
+      onOk(n);
+    };
+    openModal('#askDialog');
+    setTimeout(function(){try{inp.focus()}catch(e){}},60);
+  }
+
+  function renderToday(){
+    var all=todayEvents(),done=all.filter(function(e){return typeof e.habit==='number'}),html='';
+    for(var i=0;i<data.habits.length;i++){
+      var h=data.habits[i],e=null;
+      for(var j=0;j<done.length;j++){if(done[j].habit===i){e=done[j];break}}
+      html+='<div class="action '+(e?'done':'')+'">'
+        +'<div class="action-icon">'+esc(h.icon)+'</div>'
+        +'<div><b>'+esc(h.name)+'</b><small>'+esc(h.category)+' · 每天一次</small></div>'
+        +'<button type="button" class="reward" data-habit="'+i+'" data-event="'+(e?e.id:'')+'">'+(e?'取消完成':'＋1 ⭐')+'</button>'
+        +'</div>';
+    }
+    $('#actions').innerHTML=html;
+    $('#doneCount').textContent=done.length+' / '+data.habits.length+' 已完成';
+    var v=values();
+    $('#balance').textContent=v.balance;
+    $('#poolBalance').textContent=v.balance;
+    $('#heroNote').textContent=v.balance?('已经攒下 '+v.balance+' 颗小星星，真棒！'):'今天从一颗小星星开始吧。';
+    var ws=startOfWeek(new Date());
+    var weekly=Math.max(0,netEarned(data.events.filter(function(e){return new Date(e.date)>=ws})));
+    $('#weekText').textContent=weekly+' / '+data.goal+' ⭐';
+    $('#weekProgress').style.width=Math.min(100,weekly/data.goal*100)+'%';
+    $$('[data-habit]').forEach(function(b){
+      b.onclick=function(){
+        var i=Number(b.dataset.habit);
+        if(b.dataset.event){removeEvent(Number(b.dataset.event))}
+        else if(data.habits[i]){addEvent(data.habits[i].name,1,'earn',data.habits[i].icon,'完成今日好习惯',i)}
+      };
+    });
+  }
+
+  function renderLedger(){
+    var v=values();
+    $('#ledgerMetrics').innerHTML='<div class="metric"><b>'+v.balance+'</b><small>当前可用</small></div>'
+      +'<div class="metric"><b>'+v.earned+'</b><small>累计获得</small></div>'
+      +'<div class="metric"><b>'+v.deducted+'</b><small>累计扣除</small></div>'
+      +'<div class="metric"><b>'+v.spent+'</b><small>累计消耗</small></div>';
+    if(!data.events.length){
+      $('#ledgerList').innerHTML='<div class="week quiet">还没有记录。去“今天”完成第一项好习惯吧。</div>';
+      return;
+    }
+    var html='';
+    for(var i=0;i<data.events.length;i++){
+      var e=data.events[i];
+      html+='<div class="entry"><div class="entry-icon">'+esc(e.icon)+'</div>'
+        +'<div class="entry-info"><b>'+esc(e.title)+'</b><small>'+fmtShort(e.date)+(e.note?(' · '+esc(e.note)):'')+'</small></div>'
+        +'<div class="amount '+(e.amount<0?'minus':'')+'">'+(e.amount>0?'+':'')+e.amount+' ⭐</div></div>';
+    }
+    $('#ledgerList').innerHTML=html;
+  }
+
+  function renderWishes(){
+    var balance=values().balance,html='';
+    if(data.wishes.length){
+      for(var i=0;i<data.wishes.length;i++){
+        var w=data.wishes[i],yes=balance>=w[2];
+        html+='<div class="wish"><div class="wish-top"><div class="wish-icon">'+esc(w[0])+'</div>'
+          +'<div><h3>'+esc(w[1])+'</h3><p>'+esc(w[3])+'</p></div>'
+          +'<span class="pill">'+balance+' / '+w[2]+' ⭐</span></div>'
+          +'<div class="progress"><i style="width:'+Math.min(100,balance/w[2]*100)+'%"></i></div>'
+          +'<div class="wish-actions">'
+          +'<button type="button" class="redeem" data-wish="'+i+'" '+(yes?'':'disabled')+'>'+(yes?'实现愿望':'还差 '+(w[2]-balance)+' ⭐')+'</button>'
+          +'<button type="button" class="ghost" data-edit-wish="'+i+'">修改</button>'
+          +'<button type="button" class="danger" data-delete-wish="'+i+'">删除</button>'
+          +'</div></div>';
+      }
+    }else{
+      html='<div class="week quiet">还没有愿望，点击“添加愿望”开始吧。</div>';
+    }
+    $('#wishList').innerHTML=html;
+    $$('[data-wish]').forEach(function(b){
+      b.onclick=function(){
+        var w=data.wishes[Number(b.dataset.wish)];
+        if(!w)return;
+        if(addEvent('实现愿望：'+w[1],-w[2],'spend',w[0],'愿望已兑换'))toast('愿望已兑换，期待美好的一天！');
+      };
+    });
+    $$('[data-edit-wish]').forEach(function(b){b.onclick=function(){openDialog('editWish',Number(b.dataset.editWish))}});
+    $$('[data-delete-wish]').forEach(function(b){
+      b.onclick=function(){
+        var i=Number(b.dataset.deleteWish),w=data.wishes[i];
+        if(!w)return;
+        askConfirm('删除愿望','确定删除愿望“'+w[1]+'”吗？',function(){
+          data.wishes.splice(i,1);save();render();toast('愿望已删除。');
+        });
+      };
+    });
+  }
+
+  function renderStats(){
+    var v=values(),weekStart=startOfWeek(new Date());
+    var weekly=netEarned(data.events.filter(function(e){return new Date(e.date)>=weekStart}));
+    $('#statsMetrics').innerHTML='<div class="metric"><b>'+Math.max(0,weekly)+'</b><small>本周净得</small></div>'
+      +'<div class="metric"><b>'+netEarned(todayEvents())+'</b><small>今日净得</small></div>'
+      +'<div class="metric"><b>'+v.balance+'</b><small>当前可用</small></div>';
+    var bars='';
+    for(var i=6;i>=0;i--){
+      var d=new Date();
+      d.setDate(d.getDate()-i);
+      var dk=dateKey(d);
+      var n=netEarned(data.events.filter(function(e){return dateKey(e.date)===dk}));
+      bars+='<div class="bar-group"><div class="bar" style="height:'+Math.max(5,Math.min(100,Math.max(0,n)*25))+'%"></div><span>'+WEEK[d.getDay()]+'</span></div>';
+    }
+    $('#chart').innerHTML=bars;
+    var days=Math.max(1,Math.floor((new Date()-weekStart)/86400000)+1);
+    $('#weekDaysLabel').textContent='本周已过 '+days+' 天';
+    var hs='';
+    for(var k=0;k<data.habits.length;k++){
+      var h=data.habits[k];
+      var seen={},completed=0;
+      for(var m=0;m<data.events.length;m++){
+        var e=data.events[m];
+        if(e.habit===k&&new Date(e.date)>=weekStart){
+          var dk2=dateKey(e.date);
+          if(!seen[dk2]){seen[dk2]=1;completed++}
+        }
+      }
+      var rate=Math.round(completed/days*100);
+      hs+='<div class="setting"><div><b>'+esc(h.icon)+' '+esc(h.name)+'</b><small>本周 '+completed+' / '+days+' 天完成</small></div><span class="pill">'+rate+'%</span></div>';
+    }
+    $('#habitStats').innerHTML=hs;
+  }
+
+  function renderHabitsMgmt(){
+    var html='';
+    if(data.habits.length){
+      for(var i=0;i<data.habits.length;i++){
+        var h=data.habits[i];
+        html+='<div class="wish"><div class="wish-top"><div class="wish-icon">'+esc(h.icon)+'</div>'
+          +'<div><h3>'+esc(h.name)+'</h3><p>分类：'+esc(h.category)+'</p></div>'
+          +'<span class="pill">+1 ⭐</span></div>'
+          +'<div class="wish-actions">'
+          +'<button type="button" class="ghost" data-edit-habit="'+i+'">修改</button>'
+          +'<button type="button" class="danger" data-delete-habit="'+i+'">删除</button>'
+          +'</div></div>';
+      }
+    }else{
+      html='<div class="week quiet">还没有行为项目，点击右上角“添加”开始吧。</div>';
+    }
+    $('#habitList').innerHTML=html;
+    $$('[data-edit-habit]').forEach(function(b){b.onclick=function(){openDialog('editHabit',Number(b.dataset.editHabit))}});
+    $$('[data-delete-habit]').forEach(function(b){
+      b.onclick=function(){
+        var i=Number(b.dataset.deleteHabit),h=data.habits[i];
+        if(!h)return;
+        askConfirm('删除行为项目','确定删除行为“'+h.name+'”吗？删除后历史记录仍保留。',function(){
+          data.habits.splice(i,1);save();render();toast('行为项目已删除。');
+        });
+      };
+    });
+  }
+
+  function renderSettings(){
+    var isFile=false;
+    try{isFile=(window.location.protocol==='file:')}catch(e){}
+    $('#goalBtn').textContent=data.goal+' ⭐';
+    if(storageOK&&!isFile){
+      $('#storageState').textContent='已保存到本机浏览器，下次打开仍在。';
+      $('#storagePill').textContent='正常';
+    }else if(storageOK&&isFile){
+      $('#storageState').textContent='以本地文件方式打开，数据可能不会保留，建议通过网址访问。';
+      $('#storagePill').textContent='不稳定';
+    }else{
+      $('#storageState').textContent='当前环境禁止本地存储，记录仅本次有效，请通过网址（http/https）访问。';
+      $('#storagePill').textContent='不可用';
+    }
+  }
+
+  function showScreen(id){
+    $$('.screen').forEach(function(x){x.classList.remove('active')});
+    var el=document.getElementById(id);
+    if(el)el.classList.add('active');
+    var tabId=(id==='habitsMgmt')?'settings':id;
+    $$('.tab').forEach(function(b){
+      if(b.dataset.screen===tabId)b.classList.add('active');else b.classList.remove('active');
+    });
+    try{window.scrollTo(0,0)}catch(e){}
+  }
+
+  function render(){renderToday();renderLedger();renderWishes();renderStats();renderHabitsMgmt();renderSettings()}
+
+  var dialogMode='',editingWishIndex=null,editingHabitIndex=null;
+  function openDialog(mode,index){
+    dialogMode=mode;
+    editingWishIndex=null;
+    editingHabitIndex=null;
+    var isWish=(mode==='wish'||mode==='editWish');
+    var isHabit=(mode==='addHabit'||mode==='editHabit');
+    var editing=(mode==='editWish'||mode==='editHabit');
+    var wish=(editing&&isWish)?data.wishes[index]:null;
+    var habit=(editing&&isHabit)?data.habits[index]:null;
+    if(mode==='addHabit')editingHabitIndex=-1;
+    if(mode==='editHabit')editingHabitIndex=index;
+    if(mode==='editWish')editingWishIndex=index;
+    var title;
+    if(mode==='editHabit')title='修改行为项目';
+    else if(isHabit)title='添加行为项目';
+    else if(editing)title='修改愿望';
+    else if(isWish)title='添加一个愿望';
+    else if(mode==='extra')title='额外表扬 +1 ⭐';
+    else title='记录需要改进 −1 ⭐';
+    $('#dialogTitle').textContent=title;
+    $('#dialogDesc').textContent=isHabit?'填写行为名称、分类和图标，名称尽量具体好懂。'
+      :(isWish?'填写愿望名称，并设置攒够多少颗星星可以实现。'
+      :(mode==='extra'?'把今天特别值得表扬的事情写下来。':'扣除一颗小星星。'));
+    $('#recordNote').placeholder=isHabit?'例如：自己穿衣服':(isWish?'例如：去海洋馆':'例如：玩完玩具没有一起收好');
+    $('#recordNote').value=isHabit?(habit?habit.name:''):((editing&&wish)?wish[1]:'');
+    $('#wishCost').hidden=!isWish;
+    $('#wishCost').value=(editing&&isWish&&wish)?wish[2]:'';
+    $('#habitCategory').hidden=!isHabit;
+    $('#habitCategory').value=isHabit?(habit?habit.category:''):'';
+    $('#habitIcon').hidden=!isHabit;
+    $('#habitIcon').value=isHabit?(habit?habit.icon:'' ):'';
+    $('#confirmDialog').textContent=(mode==='extra'||mode==='deduct')?'确认记录':'保存';
+    openModal('#recordDialog');
+    setTimeout(function(){try{$('#recordNote').focus()}catch(e){}},60);
+  }
+
+  function initEnvWarn(){
+    var isFile=false;
+    try{isFile=(window.location.protocol==='file:')}catch(e){}
+    if(storageOK&&!isFile)return;
+    var el=$('#envWarn');
+    if(!el)return;
+    $('#envWarnText').innerHTML=storageOK
+      ?'<b>当前以本地文件方式打开</b>星星记录可能不会保留。建议把这个页面放到网上，通过网址在微信里打开。'
+      :'<b>当前环境无法保存数据</b>微信的文件预览通常会禁用本地存储，这里的记录只在本次打开期间有效。请通过网址（http/https）打开后再日常使用。';
+    el.hidden=false;
+  }
+
+  $('#envWarnClose').onclick=function(){$('#envWarn').hidden=true};
+  $('#dateLabel').textContent=fmtLong(new Date());
+  $('#extraBtn').onclick=function(){openDialog('extra')};
+  $('#deductBtn').onclick=function(){openDialog('deduct')};
+  $('#addWishBtn').onclick=function(){openDialog('wish')};
+  $('#addHabitBtn').onclick=function(){openDialog('addHabit')};
+  $('#cancelDialog').onclick=function(){closeModal('#recordDialog')};
+  $('#askCancel').onclick=function(){askCallback=null;closeModal('#askDialog')};
+  $('#askOk').onclick=function(){
+    if(!askCallback){closeModal('#askDialog');return}
+    var cb=askCallback;
+    if(cb()===false)return;
+    askCallback=null;
+    closeModal('#askDialog');
+  };
+  $$('.modal-backdrop').forEach(function(bd){
+    bd.onclick=function(){
+      askCallback=null;
+      if(bd.parentNode)bd.parentNode.hidden=true;
+    };
+  });
+
+  $('#confirmDialog').onclick=function(){
+    var note=$('#recordNote').value.trim();
+    if(!note){$('#recordNote').focus();return}
+    if(dialogMode==='wish'||dialogMode==='editWish'){
+      var cost=Number($('#wishCost').value);
+      if(!cost||cost<1||Math.floor(cost)!==cost){$('#wishCost').focus();return}
+      if(dialogMode==='editWish'){
+        if(!data.wishes[editingWishIndex])return;
+        data.wishes[editingWishIndex][1]=note;
+        data.wishes[editingWishIndex][2]=cost;
+      }else{
+        data.wishes.push(['🌟',note,cost,'努力攒星星来实现吧']);
+      }
+      save();render();closeModal('#recordDialog');
+      toast(dialogMode==='editWish'?'愿望已修改。':'新愿望已经放进许愿池！');
+      return;
+    }
+    if(dialogMode==='addHabit'||dialogMode==='editHabit'){
+      var category=$('#habitCategory').value.trim()||'其他';
+      var icon=$('#habitIcon').value.trim()||'🌟';
+      if(dialogMode==='editHabit'){
+        if(!data.habits[editingHabitIndex])return;
+        data.habits[editingHabitIndex].name=note;
+        data.habits[editingHabitIndex].category=category;
+        data.habits[editingHabitIndex].icon=icon;
+      }else{
+        data.habits.push({icon:icon,name:note,category:category});
+      }
+      save();render();closeModal('#recordDialog');
+      toast(dialogMode==='editHabit'?'行为项目已修改。':'新行为项目已添加！');
+      return;
+    }
+    var ok=(dialogMode==='extra')?addEvent('额外表扬',1,'earn','✨',note):addEvent('需要改进',-1,'deduct','☁️',note);
+    if(ok){closeModal('#recordDialog');toast(dialogMode==='extra'?'多了一颗闪闪的小星星！':'已记录，明天继续加油。')}
+  };
+
+  $('#goalBtn').onclick=function(){
+    askNumber('本周目标','每周想攒多少颗星星？',data.goal,function(n){
+      data.goal=Math.round(n);save();render();toast('本周目标已更新为 '+data.goal+' ⭐');
+    });
+  };
+  $('#habitBtn').onclick=function(){showScreen('habitsMgmt')};
+  $('#backFromHabits').onclick=function(){showScreen('settings')};
+  $$('.tab').forEach(function(b){b.onclick=function(){showScreen(b.dataset.screen)}});
+
+  initEnvWarn();
+  render();
+
+  /* 走到这里说明脚本完整执行完毕，撤掉自检提示 */
+  var bf=document.getElementById('bootFlag');
+  if(bf)bf.hidden=true;
+  })();
+  </script>
+</body>
+</html>
