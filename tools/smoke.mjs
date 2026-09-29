@@ -149,6 +149,7 @@ console.log('\n[2] 正常环境（https + localStorage 可用）');
   ok('渲染出 6 个预设行为项目', t.$$('[data-habit]').length === 6, '实际 ' + t.$$('[data-habit]').length);
   ok('完成计数为 0 / 6', t.$('#doneCount').textContent === '0 / 6 已完成', t.$('#doneCount').textContent);
   ok('初始余额为 0', t.$('#balance').textContent === '0', t.$('#balance').textContent);
+  ok('初始“今天净得”为 0', t.$('#todayGain').textContent === '0', t.$('#todayGain').textContent);
   ok('未显示环境警告条', t.$('#envWarn').hidden === true);
   ok('设置页显示存储状态“正常”', t.$('#storagePill').textContent === '正常', t.$('#storagePill').textContent);
   ok('数据已写入 localStorage', !!t.storage._m.get('little-star-planet-v1'));
@@ -158,12 +159,14 @@ console.log('\n[2] 正常环境（https + localStorage 可用）');
   const btn = t.$$('[data-habit]')[1];
   btn.onclick();
   ok('打卡后余额为 1', t.$('#balance').textContent === '1', t.$('#balance').textContent);
+  ok('打卡后“今天净得”为 +1', t.$('#todayGain').textContent === '+1', t.$('#todayGain').textContent);
   ok('打卡后完成计数为 1 / 6', t.$('#doneCount').textContent === '1 / 6 已完成', t.$('#doneCount').textContent);
   const done = t.$$('[data-habit]')[1];
   ok('已打卡项按钮变为“取消完成”', /取消完成/.test(t.$('#actions').innerHTML));
   ok('已打卡项带 data-event', !!done.dataset.event, JSON.stringify(done.dataset));
   done.onclick();
   ok('取消打卡后余额回到 0', t.$('#balance').textContent === '0', t.$('#balance').textContent);
+  ok('取消打卡后“今天净得”也回到 0', t.$('#todayGain').textContent === '0', t.$('#todayGain').textContent);
 
   // tab 切换 + 高亮
   const settingsTab = t.tabs.find(b => b.dataset.screen === 'settings');
@@ -224,10 +227,12 @@ console.log('\n[2] 正常环境（https + localStorage 可用）');
   t.$('#recordNote').value = '主动分享玩具';
   t.$('#confirmDialog').onclick();
   ok('额外表扬 +1', t.$('#balance').textContent === '1', t.$('#balance').textContent);
+  ok('额外表扬后“今天净得”为 +1', t.$('#todayGain').textContent === '+1', t.$('#todayGain').textContent);
   t.$('#deductBtn').onclick();
   t.$('#recordNote').value = '玩具没收好';
   t.$('#confirmDialog').onclick();
   ok('扣星 −1 后回到 0', t.$('#balance').textContent === '0', t.$('#balance').textContent);
+  ok('扣星已从“今天净得”里减掉', t.$('#todayGain').textContent === '0', t.$('#todayGain').textContent);
 
   // 兑换愿望（余额不足应禁用）
   const redeem = t.$$('[data-wish]')[0];
@@ -322,6 +327,44 @@ console.log('\n[6] 本地日期分组');
   ok('没有出现虚高的“本周 2 天”', !/本周 2 \//.test(hs), hs.slice(-220));
   const rates = (hs.match(/<span class="pill">(\d+)%/g) || []).map(s => parseInt(s.replace(/\D/g, ''), 10));
   ok('完成率均不超过 100%', rates.length > 0 && rates.every(r => r <= 100), JSON.stringify(rates));
+}
+
+// ---- 7. 今日视图顶部的「今天净得」 ----
+console.log('\n[7] 今日视图的“今天净得”');
+{
+  const at = h => { const d = new Date(); d.setHours(h, 0, 0, 0); return d.toISOString(); };
+  const yesterdayAt = h => { const d = new Date(); d.setDate(d.getDate() - 1); d.setHours(h, 0, 0, 0); return d.toISOString(); };
+  const seedWith = events => JSON.stringify({ events, goal: 20, wishes: [], habits: null });
+
+  // 今天：打卡 +5、扣星 −1、愿望兑换 −2
+  const mixed = boot({ storage: 'ok', protocol: 'https:', seed: seedWith([
+    { id: 1, amount: 5, type: 'earn', title: '完成今日好习惯', icon: '⭐', note: '', habit: 0, date: at(9) },
+    { id: 2, amount: -1, type: 'deduct', title: '需要改进', icon: '☁️', note: '玩具没收好', date: at(10) },
+    { id: 3, amount: -2, type: 'spend', title: '实现愿望：绘本', icon: '📚', note: '愿望已兑换', date: at(11) },
+  ]) });
+  ok('脚本执行无异常', mixed.errors.length === 0, mixed.errors.join(' / '));
+  ok('今天净得 = 打卡 5 − 扣星 1 = +4', mixed.$('#todayGain').textContent === '+4', mixed.$('#todayGain').textContent);
+  ok('愿望兑换不计入今天净得', !/-\d/.test(mixed.$('#todayGain').textContent), mixed.$('#todayGain').textContent);
+  ok('可用余额仍扣掉愿望兑换（5−1−2 = 2）', mixed.$('#balance').textContent === '2', mixed.$('#balance').textContent);
+  ok('与统计页“今日净得”口径一致', /<b>4<\/b><small>今日净得<\/small>/.test(mixed.$('#statsMetrics').innerHTML), mixed.$('#statsMetrics').innerHTML);
+
+  // 昨天获得的星星不算进「今天净得」
+  const old = boot({ storage: 'ok', protocol: 'https:', seed: seedWith([
+    { id: 1, amount: 3, type: 'earn', title: '完成今日好习惯', icon: '⭐', note: '', habit: 0, date: yesterdayAt(9) },
+  ]) });
+  ok('昨天的星星显示为今天净得 0', old.$('#todayGain').textContent === '0', old.$('#todayGain').textContent);
+  ok('但昨天的星星仍在可用余额里', old.$('#balance').textContent === '3', old.$('#balance').textContent);
+
+  // 只有扣星的一天：净得为负，余额也允许为负（扣星不设下限）
+  const bad = boot({ storage: 'ok', protocol: 'https:', seed: JSON.stringify({
+    events: [{ id: 1, amount: -1, type: 'deduct', title: '需要改进', icon: '☁️', note: '玩具没收好', date: at(10) }],
+    goal: 20, wishes: [['📚', '绘本', 10, '睡前故事的新朋友']], habits: null,
+  }) });
+  ok('只扣星的一天今天净得为 −1', bad.$('#todayGain').textContent === '-1', bad.$('#todayGain').textContent);
+  ok('余额不足也照扣，可用星星显示为 −1', bad.$('#balance').textContent === '-1', bad.$('#balance').textContent);
+  ok('负余额时顶部提示不再说“已经攒下”', !/已经攒下/.test(bad.$('#heroNote').textContent), bad.$('#heroNote').textContent);
+  ok('负余额时愿望进度条按 0% 处理，不出现负宽度', !/width:-/.test(bad.$('#wishList').innerHTML), bad.$('#wishList').innerHTML.slice(0, 120));
+  ok('负余额时兑换仍被拦下，并提示还差 11 ⭐', /还差 11 ⭐/.test(bad.$('#wishList').innerHTML), bad.$('#wishList').innerHTML.slice(0, 200));
 }
 
 console.log('\n=================================');
